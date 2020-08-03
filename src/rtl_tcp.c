@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #else
 #include <winsock2.h>
+#include <WS2tcpip.h>
 #include "getopt/getopt.h"
 #endif
 
@@ -53,6 +54,12 @@ typedef int socklen_t;
 #define SOCKADDR struct sockaddr
 #define SOCKET int
 #define SOCKET_ERROR -1
+#endif
+
+#ifdef _MSC_VER
+#define strdup _strdup
+#undef gai_strerror
+#define gai_strerror gai_strerrorA
 #endif
 
 static SOCKET s;
@@ -524,6 +531,7 @@ int main(int argc, char **argv)
 	pthread_cond_init(&cond, NULL);
 	pthread_cond_init(&exit_cond, NULL);
 
+	memset(&hints, 0, sizeof(hints));
 	hints.ai_flags  = AI_PASSIVE; /* Server mode. */
 	hints.ai_family = PF_UNSPEC;  /* IPv4 or IPv6. */
 	hints.ai_socktype = SOCK_STREAM;

@@ -602,9 +602,10 @@ int main(int argc, char **argv)
 
 		setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ling, sizeof(ling));
 
+		// MGB: Added NI_NUMERICHOST; getting the FQDN can be very slow
 		getnameinfo((struct sockaddr *)&remote, rlen,
 			    remhostinfo, NI_MAXHOST,
-			    remportinfo, NI_MAXSERV, NI_NUMERICSERV);
+			    remportinfo, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
 		printf("client accepted! %s %s\n", remhostinfo, remportinfo);
 
 		memset(&dongle_info, 0, sizeof(dongle_info));

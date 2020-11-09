@@ -36,6 +36,7 @@
 #else
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include <Windows.h>
 #include "getopt/getopt.h"
 #endif
 
@@ -285,6 +286,11 @@ static void *command_worker(void *arg)
 	int r = 0;
 	uint32_t tmp;
 
+#ifdef _WIN32
+	EXECUTION_STATE exState = SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_AWAYMODE_REQUIRED);
+	if(exState == 0) printf("warning: unable to set thread execution state to keep system awake\n");
+#endif
+
 	while(1) {
 		left=sizeof(cmd);
 		while(left >0) {
@@ -299,6 +305,11 @@ static void *command_worker(void *arg)
 			}
 			if(received == SOCKET_ERROR || do_exit) {
 				printf("comm recv bye\n");
+
+			#ifdef _WIN32
+				if(exState != 0) SetThreadExecutionState(exState);
+			#endif
+
 				sighandler(0);
 				pthread_exit(NULL);
 			}

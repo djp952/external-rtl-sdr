@@ -249,7 +249,7 @@ int verbose_device_search(char *s)
 {
 	int i, device_count, device, offset;
 	char *s2;
-	char vendor[256], product[256], serial[256];
+	char vendor[256] = "NOT SPECIFIED", product[256] = "NOT SPECIFIED", serial[256] = "NOT SPECIFIED";
 	device_count = rtlsdr_get_device_count();
 	if (!device_count) {
 		fprintf(stderr, "No supported devices found.\n");

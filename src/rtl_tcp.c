@@ -536,11 +536,6 @@ int main(int argc, char **argv)
 	if (enable_biastee)
 		fprintf(stderr, "activated bias-T on GPIO PIN 0\n");
 
-	/* Reset endpoint before we start reading from it (mandatory) */
-	r = rtlsdr_reset_buffer(dev);
-	if (r < 0)
-		fprintf(stderr, "WARNING: Failed to reset buffers.\n");
-
 	pthread_mutex_init(&exit_cond_lock, NULL);
 	pthread_mutex_init(&ll_mutex, NULL);
 	pthread_mutex_init(&exit_cond_lock, NULL);
@@ -644,6 +639,10 @@ int main(int argc, char **argv)
 		r = pthread_create(&tcp_worker_thread, &attr, tcp_worker, NULL);
 		r = pthread_create(&command_thread, &attr, command_worker, NULL);
 		pthread_attr_destroy(&attr);
+
+		/* Reset endpoint before we start reading from it */
+		if(rtlsdr_reset_buffer(dev) < 0)
+			fprintf(stderr, "WARNING: Failed to reset buffers.\n");
 
 		r = rtlsdr_read_async(dev, rtlsdr_callback, NULL, buf_num, 0);
 

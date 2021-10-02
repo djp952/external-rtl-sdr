@@ -35,7 +35,7 @@
 #include <fcntl.h>
 #else
 #include <winsock2.h>
-#include <WS2tcpip.h>
+#include <ws2tcpip.h>
 #include <Windows.h>
 #include "getopt/getopt.h"
 #endif
@@ -56,6 +56,10 @@ typedef int socklen_t;
 #define SOCKET int
 #define SOCKET_ERROR -1
 #endif
+
+#define DEFAULT_PORT_STR "1234"
+#define DEFAULT_SAMPLE_RATE_HZ 2048000
+#define DEFAULT_MAX_NUM_BUFFERS 500
 
 #ifdef _MSC_VER
 #define strdup _strdup
@@ -90,23 +94,23 @@ static rtlsdr_dev_t *dev = NULL;
 static int enable_biastee = 0;
 static int global_numq = 0;
 static struct llist *ll_buffers = 0;
-static int llbuf_num = 500;
+static int llbuf_num = DEFAULT_MAX_NUM_BUFFERS;
 
 static volatile int do_exit = 0;
 
 void usage(void)
 {
-	printf("rtl_tcp, an I/Q spectrum server for RTL2832 based DVB-T receivers\n\n"
-		"Usage:\t[-a listen address]\n"
-		"\t[-p listen port (default: 1234)]\n"
-		"\t[-f frequency to tune to [Hz]]\n"
-		"\t[-g gain (default: 0 for auto)]\n"
-		"\t[-s samplerate in Hz (default: 2048000 Hz)]\n"
-		"\t[-b number of buffers (default: 15, set by library)]\n"
-		"\t[-n max number of linked list buffers to keep (default: 500)]\n"
-		"\t[-d device index (default: 0)]\n"
-		"\t[-P ppm_error (default: 0)]\n"
-		"\t[-T enable bias-T on GPIO PIN 0 (works for rtl-sdr.com v3 dongles)]\n");
+	printf("rtl_tcp, an I/Q spectrum server for RTL2832 based DVB-T receivers\n\n");
+	printf("Usage:\t[-a listen address]\n");
+	printf("\t[-p listen port (default: %s)]\n", DEFAULT_PORT_STR);
+	printf("\t[-f frequency to tune to [Hz]]\n");
+	printf("\t[-g gain (default: 0 for auto)]\n");
+	printf("\t[-s samplerate in Hz (default: %d Hz)]\n", DEFAULT_SAMPLE_RATE_HZ);
+	printf("\t[-b number of buffers (default: 15, set by library)]\n");
+	printf("\t[-n max number of linked list buffers to keep (default: %d)]\n", DEFAULT_MAX_NUM_BUFFERS);
+	printf("\t[-d device index (default: 0)]\n");
+	printf("\t[-P ppm_error (default: 0)]\n");
+	printf("\t[-T enable bias-T on GPIO PIN 0 (works for rtl-sdr.com v3 dongles)]\n");
 	exit(1);
 }
 
@@ -396,8 +400,8 @@ int main(int argc, char **argv)
 {
 	int r, opt, i;
 	char *addr = "127.0.0.1";
-	char *port = "1234";
-	uint32_t frequency = 100000000, samp_rate = 2048000;
+	const char *port = DEFAULT_PORT_STR;
+	uint32_t frequency = 100000000, samp_rate = DEFAULT_SAMPLE_RATE_HZ;
 	struct sockaddr_storage local, remote;
 	struct addrinfo *ai;
 	struct addrinfo *aiHead;
